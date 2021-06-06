@@ -21,7 +21,7 @@ stages:
                 - task: Npm@1
                   inputs:
                       command: 'custom'
-                      workingDir: 'src'
+                      workingDir: 'StorageTutorial/src'
                       customCommand: 'run build'
                 - task: PublishPipelineArtifact@1
                   inputs:
