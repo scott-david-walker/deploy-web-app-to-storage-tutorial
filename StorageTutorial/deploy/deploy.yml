@@ -43,7 +43,7 @@ stages:
                         steps:
                             - task: AzureFileCopy@4
                               inputs:
-                                  SourcePath: '$(Pipeline.Workspace)/dist/StorageTutoral/**'
+                                  SourcePath: '$(Pipeline.Workspace)/dist/StorageTutorial/**'
                                   azureSubscription: 'Playground'
                                   Destination: 'AzureBlob'
                                   storage: 'astaticsitestorage'
