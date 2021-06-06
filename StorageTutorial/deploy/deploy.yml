@@ -1,0 +1,50 @@
+trigger:
+    - master
+
+pool:
+    vmImage: 'windows-latest'
+
+stages:
+
+    - stage: BuildApp
+      displayName: 'Build App'
+      dependsOn: []
+      jobs:
+          - job: Build
+            continueOnError: false
+            steps:
+                - task: Npm@1
+                  inputs:
+                      command: 'install'
+                      workingDir: 'src'
+
+                - task: Npm@1
+                  inputs:
+                      command: 'custom'
+                      workingDir: 'src'
+                      customCommand: 'run build'
+                - task: PublishPipelineArtifact@1
+                  inputs:
+                      targetPath: 'dist'
+                      artifact: 'dist'
+                      publishLocation: 'pipeline'
+
+
+    - stage: 'ReleaseAppToTest'
+      displayName: 'Release app to Test'
+      condition: and(succeeded('BuildApp'),  ne(variables['Build.Reason'], 'PullRequest'))
+      jobs:
+          - deployment: 'Release_storage_front_end_app'
+            continueOnError: false
+            environment: 'test'
+            strategy:
+                runOnce:
+                    deploy:
+                        steps:
+                            - task: AzureFileCopy@4
+                              inputs:
+                                  SourcePath: '$(Pipeline.Workspace)/dist/**'
+                                  azureSubscription: 'Playground'
+                                  Destination: 'AzureBlob'
+                                  storage: 'astaticsitestorage'
+                                  ContainerName: '$web'
